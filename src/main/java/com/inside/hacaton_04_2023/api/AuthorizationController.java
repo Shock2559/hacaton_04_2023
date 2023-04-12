@@ -2,6 +2,8 @@ package com.inside.hacaton_04_2023.api;
 
 import com.inside.hacaton_04_2023.dao.LoginAndPasswordDAO;
 import com.inside.hacaton_04_2023.dao.UserDAO;
+import com.inside.hacaton_04_2023.dao.UserDopDataDAO;
+import com.inside.hacaton_04_2023.dao.UserSkillsDAO;
 import com.inside.hacaton_04_2023.entity.LoginAndPassword;
 import com.inside.hacaton_04_2023.entity.User;
 import com.inside.hacaton_04_2023.restClasses.AuthRequest;
@@ -18,6 +20,8 @@ public class AuthorizationController {
 
     private LoginAndPasswordDAO loginAndPasswordDAO;
     private UserDAO userDAO;
+    private UserDopDataDAO userDopDataDAO;
+    private UserSkillsDAO userSkillsDAO;
 
     @Autowired
     public void setLoginAndPasswordDAO(LoginAndPasswordDAO loginAndPasswordDAO) {
@@ -28,6 +32,12 @@ public class AuthorizationController {
     public void setUserDAO(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
+
+    @Autowired
+    public void setUserDopDataDAO(UserDopDataDAO userDopDataDAO) { this.userDopDataDAO = userDopDataDAO; }
+
+    @Autowired
+    public void setUserSkillsDAO(UserSkillsDAO userSkillsDAO) { this.userSkillsDAO = userSkillsDAO; }
 
     @CrossOrigin
     @PostMapping("/check_auth")
