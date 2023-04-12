@@ -6,13 +6,16 @@ import com.inside.hacaton_04_2023.dao.UserDopDataDAO;
 import com.inside.hacaton_04_2023.dao.UserSkillsDAO;
 import com.inside.hacaton_04_2023.entity.LoginAndPassword;
 import com.inside.hacaton_04_2023.entity.User;
-import com.inside.hacaton_04_2023.restClasses.AuthRequest;
-import com.inside.hacaton_04_2023.restClasses.CreateUserRequest;
-import com.inside.hacaton_04_2023.restClasses.ErrorRequest;
-import com.inside.hacaton_04_2023.restClasses.UpdateUserRequest;
+import com.inside.hacaton_04_2023.entity.UserDopData;
+import com.inside.hacaton_04_2023.entity.UserSkills;
+import com.inside.hacaton_04_2023.restClasses.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/auth", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,18 +82,73 @@ public class AuthorizationController {
     }
 
     @CrossOrigin
+    @PostMapping("/get_user_dop_data")
+    public Object getUserDopData(@RequestBody int id) {
+
+        User user = userDAO.getUserById(id);
+
+        if(user != null) {
+
+            UserDopData userDopData = userDopDataDAO.getUserDopDataByUser(user);
+            List<UserSkills> list = userSkillsDAO.findUserSkillsByUserDopData(userDopData);
+            userDopData.userSkills = new ArrayList<>();
+
+            for(int i = 0; i < list.size(); i++) {
+                userDopData.userSkills.add(new UserSkillsResponse(list.get(i).getName()));
+            }
+
+            return userDopData;
+        }
+
+        return new ErrorRequest("User not found");
+    }
+
+
+    @CrossOrigin
     @PostMapping("/update_user")
     public Object postUpdateUser(@RequestBody UpdateUserRequest request) {
 
         User user = userDAO.getUserById(request.getId());
 
         if(user != null) {
+
+            UserDopData userDopData = userDopDataDAO.getUserDopDataByUser(user);
+
+            if(userDopData == null) {
+                userDopData = new UserDopData();
+                userDopDataDAO.save(userDopData);
+            }
+
+            userDopData.setPost(request.getPost());
+            userDopData.setLocation(request.getLocation());
+            userDopData.setUser(user);
+            userDopData.setImg(request.getImg());
+            userDopDataDAO.save(userDopData);
+
+            List<UserSkills> list = userSkillsDAO.findUserSkillsByUserDopData(userDopData);
+
+            if(list != null) {
+                for(int i = 0; i < list.size(); i++) {
+                    userSkillsDAO.delete(list.get(i));
+                }
+            }
+
+            for(int i = 0; i < request.getUserSkills().size(); i++) {
+                UserSkills userSkill = new UserSkills();
+                userSkill.setName(request.getUserSkills().get(i));
+                userSkill.setUserDopData(userDopData);
+                userSkillsDAO.save(userSkill);
+            }
+
             user.setName(request.getName());
             user.setEmail(request.getEmail());
             user.setNumberPhone(request.getNumberPhone());
             user.setEmployer(request.isEmployer());
             user.getLoginAndPassword().setLogin(request.getLogin());
             user.getLoginAndPassword().setPassword(request.getPassword());
+
+            userDAO.save(user);
+
 
             return user;
         }

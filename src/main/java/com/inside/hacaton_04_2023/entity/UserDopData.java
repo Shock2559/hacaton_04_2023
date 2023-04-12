@@ -1,7 +1,10 @@
 package com.inside.hacaton_04_2023.entity;
 
+import com.inside.hacaton_04_2023.restClasses.UserSkillsResponse;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
+
+import java.util.List;
 
 @Entity
 @Table(name = "user_dop_data")
@@ -25,6 +28,9 @@ public class UserDopData {
     @Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
     @JoinColumn(name = "id_user", referencedColumnName = "id")
     private User user;
+
+    @Transient
+    public List<UserSkillsResponse> userSkills;
 
     public UserDopData(){};
     public UserDopData(String post, String img, String location, User user) {
