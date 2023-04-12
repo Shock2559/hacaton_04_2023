@@ -1,7 +1,10 @@
 package com.inside.hacaton_04_2023.entity;
 
+import com.inside.hacaton_04_2023.restClasses.CardDopParameterResponse;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
+
+import java.util.List;
 
 @Entity
 @Table(name = "card")
@@ -31,6 +34,9 @@ public class Card {
     @Cascade({org.hibernate.annotations.CascadeType.SAVE_UPDATE})
     @JoinColumn(name = "id_author", referencedColumnName = "id")
     private User user;
+
+    @Transient
+    public List<CardDopParameterResponse> cardDopParameterResponses;
 
     public Card() {}
     public Card(String name, String post, String descriptionOne, String descriptionTwo, int statusOpen, User user) {
